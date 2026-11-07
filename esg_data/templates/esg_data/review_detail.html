@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>ESG Review</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body class="bg-light">
+
+    <div class="container py-4">
+
+        <!-- Header -->
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h2>ESG Data Review</h2>
+
+                <p class="text-muted mb-0">
+                    Manager review and approval
+                </p>
+
+            </div>
+
+            <a href="{% url 'esg_review_dashboard' %}" class="btn btn-secondary">
+                ← Back to Review Dashboard
+            </a>
+
+        </div>
+
+
+        <!-- Messages -->
+
+        {% if messages %}
+
+        {% for message in messages %}
+
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+
+        {% endfor %}
+
+        {% endif %}
+
+
+        <!-- ESG Data Information -->
+
+        <div class="card shadow-sm mb-4">
+
+            <div class="card-header bg-primary text-white">
+
+                <strong>
+                    ESG Data Information
+                </strong>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="row">
+
+                    <!-- Business Unit -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <strong>Business Unit</strong>
+
+                        <div>
+                            {{ esg_data.business_unit.name }}
+                        </div>
+
+                    </div>
+
+
+                    <!-- Financial Year -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <strong>Financial Year</strong>
+
+                        <div>
+                            {{ esg_data.financial_year }}
+                        </div>
+
+                    </div>
+
+
+                    <!-- Metric -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <strong>Metric</strong>
+
+                        <div>
+                            {{ esg_data.metric.name }}
+                        </div>
+
+                    </div>
+
+
+                    <!-- Category -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <strong>Category</strong>
+
+                        <div>
+                            {{ esg_data.metric.category|title }}
+                        </div>
+
+                    </div>
+
+
+                    <!-- Value -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <strong>Value</strong>
+
+                        <div>
+
+                            {{ esg_data.value }}
+
+                            {{ esg_data.metric.unit }}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Data Source -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <strong>Data Source</strong>
+
+                        <div>
+
+                            {% if esg_data.data_source %}
+
+                            {{ esg_data.data_source }}
+
+                            {% else %}
+
+                            <span class="text-muted">
+                                Not provided
+                            </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Entered By -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <strong>Entered By</strong>
+
+                        <div>
+
+                            {% if esg_data.entered_by %}
+
+                            {{ esg_data.entered_by }}
+
+                            {% else %}
+
+                            <span class="text-muted">
+                                Not specified
+                            </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Current Status -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <strong>Current Status</strong>
+
+                        <div>
+
+                            {% if esg_data.status == "submitted" %}
+
+                            <span class="badge bg-primary">
+                                Submitted
+                            </span>
+
+                            {% elif esg_data.status == "under_review" %}
+
+                            <span class="badge bg-warning text-dark">
+                                Under Review
+                            </span>
+
+                            {% elif esg_data.status == "approved" %}
+
+                            <span class="badge bg-success">
+                                Approved
+                            </span>
+
+                            {% elif esg_data.status == "rejected" %}
+
+                            <span class="badge bg-danger">
+                                Rejected
+                            </span>
+
+                            {% else %}
+
+                            <span class="badge bg-secondary">
+                                {{ esg_data.status|title }}
+                            </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Remarks -->
+
+                    <div class="col-12">
+
+                        <strong>Remarks</strong>
+
+                        <div class="mt-2 p-3 bg-light border rounded">
+
+                            {% if esg_data.remarks %}
+
+                            {{ esg_data.remarks }}
+
+                            {% else %}
+
+                            <span class="text-muted">
+                                No remarks provided.
+                            </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Validation Issues -->
+
+        <div class="card shadow-sm mb-4">
+
+            <div class="card-header bg-warning">
+
+                <strong>
+                    Validation Issues
+                </strong>
+
+            </div>
+
+            <div class="card-body">
+
+                {% if validations %}
+
+                {% for validation in validations %}
+
+                <div class="
+                    alert
+                    {% if validation.severity == 'critical' %}
+                        alert-danger
+                    {% elif validation.severity == 'error' %}
+                        alert-danger
+                    {% else %}
+                        alert-warning
+                    {% endif %}
+                    ">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <strong>
+                                {{ validation.rule_name }}
+                            </strong>
+
+                            <br>
+
+                            {{ validation.message }}
+
+                            <br>
+
+                            <small>
+
+                                Severity:
+                                {{ validation.severity|title }}
+
+                            </small>
+
+                        </div>
+
+
+                        <div class="ms-3">
+
+                            {% if validation.status == "open" %}
+
+                            <form method="POST" action="{% url 'resolve_validation' validation.id %}" class="d-inline">
+
+                                {% csrf_token %}
+
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    ✓ Resolve
+                                </button>
+
+                            </form>
+
+
+                            <form method="POST" action="{% url 'ignore_validation' validation.id %}"
+                                class="d-inline ms-1">
+
+                                {% csrf_token %}
+
+                                <button type="submit" class="btn btn-sm btn-secondary">
+                                    Ignore
+                                </button>
+
+                            </form>
+
+                            {% else %}
+
+                            <span class="badge bg-success">
+
+                                {{ validation.status|title }}
+
+                            </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+                {% else %}
+
+                <div class="alert alert-success mb-0">
+
+                    ✓ No open validation issues found.
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        <!-- Manager Actions -->
+
+        <div class="card shadow-sm">
+
+            <div class="card-header bg-dark text-white">
+
+                <strong>
+                    Manager Actions
+                </strong>
+
+            </div>
+
+            <div class="card-body">
+
+
+                <!-- SUBMITTED -->
+
+                {% if esg_data.status == "submitted" %}
+
+                <form method="POST" class="d-inline">
+
+                    {% csrf_token %}
+
+                    <input type="hidden" name="action" value="review">
+
+                    <button type="submit" class="btn btn-warning">
+
+                        🔍 Start Review
+
+                    </button>
+
+                </form>
+
+
+                <!-- UNDER REVIEW -->
+
+                {% elif esg_data.status == "under_review" %}
+
+
+                <!-- APPROVAL BLOCK -->
+
+                {% if blocking_issues %}
+
+                <div class="alert alert-danger">
+
+                    <strong>
+                        Approval Blocked
+                    </strong>
+
+                    <p class="mb-0 mt-2">
+
+                        This ESG record contains
+                        {{ blocking_issues|length }}
+                        unresolved Error/Critical
+                        validation issue(s).
+
+                        These issues must be resolved
+                        before approval.
+
+                    </p>
+
+                </div>
+
+
+                <button type="button" class="btn btn-secondary" disabled>
+
+                    🔒 Approval Blocked
+
+                </button>
+
+
+                {% else %}
+
+
+                <!-- APPROVE -->
+
+                <form method="POST" class="d-inline">
+
+                    {% csrf_token %}
+
+                    <input type="hidden" name="action" value="approve">
+
+                    <button type="submit" class="btn btn-success">
+
+                        ✓ Approve
+
+                    </button>
+
+                </form>
+
+
+                {% endif %}
+
+
+                <!-- REJECT -->
+
+                <form method="POST" class="d-inline ms-2">
+
+                    {% csrf_token %}
+
+                    <input type="hidden" name="action" value="reject">
+
+                    <button type="submit" class="btn btn-danger">
+
+                        ✕ Reject
+
+                    </button>
+
+                </form>
+
+
+                <!-- APPROVED -->
+
+                {% elif esg_data.status == "approved" %}
+
+                <div class="alert alert-success mb-0">
+
+                    ✓ This ESG record has been approved.
+
+                </div>
+
+
+                <!-- REJECTED -->
+
+                {% elif esg_data.status == "rejected" %}
+
+                <div class="alert alert-danger">
+
+                    This ESG record has been rejected.
+
+                </div>
+
+                <a href="{% url 'draft_esg_data' %}" class="btn btn-primary">
+
+                    Return to Draft Data
+
+                </a>
+
+
+                {% endif %}
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

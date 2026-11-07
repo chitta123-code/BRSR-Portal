@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<title>ESG & BRSR Portal</title>
+
+<link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+>
+
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+>
+
+<style>
+    body {
+        background-color: #f5f7fb;
+    }
+
+    .hero {
+        background: linear-gradient(135deg, #0d6efd, #084298);
+        color: white;
+        border-radius: 16px;
+        padding: 45px 30px;
+        margin-bottom: 35px;
+    }
+
+    .hero h1 {
+        font-weight: 700;
+    }
+
+    .module-card {
+        border: none;
+        border-radius: 14px;
+        transition: 0.2s;
+    }
+
+    .module-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .module-icon {
+        font-size: 38px;
+        margin-bottom: 15px;
+    }
+
+    .workflow {
+        border-radius: 14px;
+    }
+
+    .workflow-step {
+        text-align: center;
+        padding: 15px;
+    }
+
+    .workflow-number {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #0d6efd;
+        color: white;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+</style>
+```
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<nav class="navbar navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">
+            <i class="bi bi-bar-chart-line"></i>
+            ESG & BRSR Portal
+        </a>
+
+```
+    <a href="/admin/" class="btn btn-outline-light btn-sm">
+        <i class="bi bi-gear"></i>
+        Admin
+    </a>
+</div>
+```
+
+</nav>
+
+<div class="container py-4">
+
+```
+<!-- HERO -->
+<div class="hero text-center shadow-sm">
+
+    <h1>
+        ESG & BRSR Management Portal
+    </h1>
+
+    <p class="lead mb-0">
+        Manage ESG data, BRSR reporting, validation,
+        anomaly detection, review and consolidation.
+    </p>
+
+</div>
+
+
+<!-- WORKFLOW -->
+<div class="card workflow shadow-sm mb-4">
+
+    <div class="card-body">
+
+        <h4 class="text-center mb-4">
+            <i class="bi bi-diagram-3"></i>
+            ESG Data Workflow
+        </h4>
+
+        <div class="row">
+
+            <div class="col-md-2 workflow-step">
+                <div class="workflow-number">1</div>
+                <div>Data Entry</div>
+            </div>
+
+            <div class="col-md-2 workflow-step">
+                <div class="workflow-number">2</div>
+                <div>Upload</div>
+            </div>
+
+            <div class="col-md-2 workflow-step">
+                <div class="workflow-number">3</div>
+                <div>Validation</div>
+            </div>
+
+            <div class="col-md-2 workflow-step">
+                <div class="workflow-number">4</div>
+                <div>Review</div>
+            </div>
+
+            <div class="col-md-2 workflow-step">
+                <div class="workflow-number">5</div>
+                <div>Approval</div>
+            </div>
+
+            <div class="col-md-2 workflow-step">
+                <div class="workflow-number">6</div>
+                <div>Consolidation</div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- MAIN MODULES -->
+<div class="row g-4">
+
+    <!-- BRSR ENTRY -->
+    <div class="col-md-4">
+
+        <div class="card module-card h-100 shadow-sm">
+
+            <div class="card-body">
+
+                <div class="module-icon text-primary">
+                    <i class="bi bi-file-earmark-text"></i>
+                </div>
+
+                <h4>BRSR Entry</h4>
+
+                <p class="text-muted">
+                    Enter and manage Business Responsibility
+                    and Sustainability Reporting data.
+                </p>
+
+                <a href="{% url 'brsr_entry' %}"
+                   class="btn btn-primary">
+                    Open BRSR
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ESG UPLOAD -->
+    <div class="col-md-4">
+
+        <div class="card module-card h-100 shadow-sm">
+
+            <div class="card-body">
+
+                <div class="module-icon text-success">
+                    <i class="bi bi-cloud-arrow-up"></i>
+                </div>
+
+                <h4>ESG Data Upload</h4>
+
+                <p class="text-muted">
+                    Upload Excel or CSV ESG data and automatically
+                    match and validate the records.
+                </p>
+
+                <a href="{% url 'esg_file_upload' %}"
+                   class="btn btn-success">
+                    Upload ESG File
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ESG DASHBOARD -->
+    <div class="col-md-4">
+
+        <div class="card module-card h-100 shadow-sm">
+
+            <div class="card-body">
+
+                <div class="module-icon text-info">
+                    <i class="bi bi-bar-chart"></i>
+                </div>
+
+                <h4>ESG Dashboard</h4>
+
+                <p class="text-muted">
+                    View approved ESG data, category summaries,
+                    business-unit data and key statistics.
+                </p>
+
+                <a href="{% url 'esg_dashboard' %}"
+                   class="btn btn-info text-white">
+                    Open Dashboard
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- REVIEW -->
+    <div class="col-md-4">
+
+        <div class="card module-card h-100 shadow-sm">
+
+            <div class="card-body">
+
+                <div class="module-icon text-warning">
+                    <i class="bi bi-person-check"></i>
+                </div>
+
+                <h4>ESG Review</h4>
+
+                <p class="text-muted">
+                    Review submitted ESG records and approve
+                    or reject them after validation.
+                </p>
+
+                <a href="{% url 'esg_review_dashboard' %}"
+                   class="btn btn-warning">
+                    Open ESG Review
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ANOMALIES -->
+    <div class="col-md-4">
+
+        <div class="card module-card h-100 shadow-sm">
+
+            <div class="card-body">
+
+                <div class="module-icon text-danger">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+
+                <h4>Anomaly Detection</h4>
+
+                <p class="text-muted">
+                    Identify unusual ESG values and review
+                    potential data anomalies.
+                </p>
+
+                <a href="{% url 'esg_anomaly_dashboard' %}"
+                   class="btn btn-danger">
+                    Open Anomalies
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CONSOLIDATION -->
+    <div class="col-md-4">
+
+        <div class="card module-card h-100 shadow-sm">
+
+            <div class="card-body">
+
+                <div class="module-icon" style="color:#6f42c1;">
+                    <i class="bi bi-diagram-3"></i>
+                </div>
+
+                <h4>ESG Consolidation</h4>
+
+                <p class="text-muted">
+                    Consolidate approved ESG information across
+                    business units for a selected company.
+                </p>
+
+                <a href="{% url 'esg_consolidation' %}"
+                   class="btn text-white"
+                   style="background-color:#6f42c1;">
+                    Open Consolidation
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ADDITIONAL MODULES -->
+<div class="row g-4 mt-2">
+
+    <!-- BRSR REVIEW -->
+    <div class="col-md-4">
+
+        <div class="card module-card h-100 shadow-sm">
+
+            <div class="card-body">
+
+                <div class="module-icon text-secondary">
+                    <i class="bi bi-clipboard-check"></i>
+                </div>
+
+                <h4>BRSR Reviewer</h4>
+
+                <p class="text-muted">
+                    Review BRSR submissions and manage their
+                    approval or rejection workflow.
+                </p>
+
+                <a href="{% url 'reviewer_dashboard' %}"
+                   class="btn btn-secondary">
+                    Open Reviewer
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- INGESTION -->
+    <div class="col-md-4">
+
+        <div class="card module-card h-100 shadow-sm">
+
+            <div class="card-body">
+
+                <div class="module-icon text-dark">
+                    <i class="bi bi-database"></i>
+                </div>
+
+                <h4>Data Ingestion</h4>
+
+                <p class="text-muted">
+                    Access the data ingestion module for
+                    processing incoming information.
+                </p>
+
+                <a href="/ingestion/"
+                   class="btn btn-dark">
+                    Open Ingestion
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ADMIN -->
+    <div class="col-md-4">
+
+        <div class="card module-card h-100 shadow-sm">
+
+            <div class="card-body">
+
+                <div class="module-icon text-dark">
+                    <i class="bi bi-gear"></i>
+                </div>
+
+                <h4>Administration</h4>
+
+                <p class="text-muted">
+                    Manage companies, business units, ESG metrics
+                    and system data.
+                </p>
+
+                <a href="/admin/"
+                   class="btn btn-dark">
+                    Open Admin
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- FOOTER -->
+<div class="text-center text-muted mt-5 mb-3">
+
+    <small>
+        ESG & BRSR Management Portal
+        | Data Entry → Validation → Review → Approval → Consolidation
+    </small>
+
+</div>
+```
+
+</div>
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+</body>
+</html>

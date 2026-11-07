@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Manager Dashboard - BRSR / ESG Portal</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+</head>
+
+
+<body class="bg-light">
+
+
+    <div class="container-fluid p-4">
+
+
+        <!-- HEADER -->
+
+        <div class="card shadow-sm mb-4">
+
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <h2 class="mb-1">
+                            <i class="bi bi-person-badge"></i>
+                            Manager Dashboard
+                        </h2>
+
+                        <p class="text-muted mb-0">
+                            BRSR / ESG Management & Approval
+                        </p>
+
+                    </div>
+
+
+                    <!-- LOGOUT -->
+
+                    <form method="post" action="{% url 'logout' %}">
+
+                        {% csrf_token %}
+
+                        <button type="submit" class="btn btn-danger">
+
+                            <i class="bi bi-box-arrow-right"></i>
+                            Logout
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- KPI CARDS -->
+
+        <div class="row g-3 mb-4">
+
+
+            <!-- TOTAL -->
+
+            <div class="col-md-3">
+
+                <div class="card shadow-sm h-100">
+
+                    <div class="card-body">
+
+                        <h6 class="text-muted">
+                            Total Submissions
+                        </h6>
+
+                        <h2>
+                            {{ total_submissions }}
+                        </h2>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- SUBMITTED -->
+
+            <div class="col-md-3">
+
+                <div class="card shadow-sm h-100">
+
+                    <div class="card-body">
+
+                        <h6 class="text-muted">
+                            Submitted
+                        </h6>
+
+                        <h2>
+                            {{ submitted_count }}
+                        </h2>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- UNDER REVIEW -->
+
+            <div class="col-md-3">
+
+                <div class="card shadow-sm h-100">
+
+                    <div class="card-body">
+
+                        <h6 class="text-muted">
+                            Under Review
+                        </h6>
+
+                        <h2>
+                            {{ under_review_count }}
+                        </h2>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- APPROVED -->
+
+            <div class="col-md-3">
+
+                <div class="card shadow-sm h-100">
+
+                    <div class="card-body">
+
+                        <h6 class="text-muted">
+                            Approved
+                        </h6>
+
+                        <h2>
+                            {{ approved_count }}
+                        </h2>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- REJECTED -->
+
+        <div class="row mb-4">
+
+            <div class="col-md-3">
+
+                <div class="card shadow-sm">
+
+                    <div class="card-body">
+
+                        <h6 class="text-muted">
+                            Rejected
+                        </h6>
+
+                        <h2>
+                            {{ rejected_count }}
+                        </h2>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- SUBMISSIONS -->
+
+        <div class="card shadow-sm">
+
+            <div class="card-header">
+
+                <h5 class="mb-0">
+
+                    <i class="bi bi-clipboard-check"></i>
+
+                    BRSR Submissions
+
+                </h5>
+
+            </div>
+
+
+            <div class="card-body">
+
+
+                {% if submissions %}
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-hover align-middle">
+
+                        <thead class="table-dark">
+
+                            <tr>
+
+                                <th>
+                                    Company
+                                </th>
+
+                                <th>
+                                    Financial Year
+                                </th>
+
+                                <th>
+                                    Project
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Submitted
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for submission in submissions %}
+
+                            <tr>
+
+                                <td>
+
+                                    {{ submission.company.name }}
+
+                                </td>
+
+
+                                <td>
+
+                                    {{ submission.reporting_period.financial_year }}
+
+                                </td>
+
+
+                                <td>
+
+                                    {% if submission.project %}
+
+                                    {{ submission.project.name }}
+
+                                    {% else %}
+
+                                    -
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+                                    {% if submission.status == "SUBMITTED" %}
+
+                                    <span class="badge bg-primary">
+                                        SUBMITTED
+                                    </span>
+
+                                    {% elif submission.status == "UNDER_REVIEW" %}
+
+                                    <span class="badge bg-warning text-dark">
+                                        UNDER REVIEW
+                                    </span>
+
+                                    {% elif submission.status == "APPROVED" %}
+
+                                    <span class="badge bg-success">
+                                        APPROVED
+                                    </span>
+
+                                    {% elif submission.status == "REJECTED" %}
+
+                                    <span class="badge bg-danger">
+                                        REJECTED
+                                    </span>
+
+                                    {% elif submission.status == "RESUBMITTED" %}
+
+                                    <span class="badge bg-info">
+                                        RESUBMITTED
+                                    </span>
+
+                                    {% else %}
+
+                                    <span class="badge bg-secondary">
+                                        {{ submission.status }}
+                                    </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+                                    {% if submission.submitted_at %}
+
+                                    {{ submission.submitted_at|date:"d M Y, h:i A" }}
+
+                                    {% else %}
+
+                                    -
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+                                    <div class="d-flex gap-1 flex-wrap">
+
+                                        <!-- SUBMITTED / RESUBMITTED -->
+
+                                        {% if submission.status == "SUBMITTED" or submission.status == "RESUBMITTED" %}
+
+                                        <a href="{% url 'manager_review_submission' submission.id %}"
+                                            class="btn btn-sm btn-primary">
+
+                                            <i class="bi bi-eye"></i>
+                                            Review
+
+                                        </a>
+
+                                        {% endif %}
+
+
+                                        <!-- UNDER REVIEW -->
+
+                                        {% if submission.status == "UNDER_REVIEW" %}
+
+                                        <a href="{% url 'manager_review_submission' submission.id %}"
+                                            class="btn btn-sm btn-warning">
+
+                                            <i class="bi bi-eye"></i>
+                                            Review
+
+                                        </a>
+
+                                        {% endif %}
+
+
+                                        <!-- APPROVED -->
+
+                                        {% if submission.status == "APPROVED" %}
+
+                                        <a href="{% url 'download_brsr_pdf' submission.id %}"
+                                            class="btn btn-sm btn-danger">
+
+                                            <i class="bi bi-file-earmark-pdf"></i>
+                                            Download PDF
+
+                                        </a>
+
+                                        {% endif %}
+
+
+                                        <!-- DRAFT -->
+
+                                        {% if submission.status == "DRAFT" %}
+
+                                        <span class="text-muted">
+                                            No action
+                                        </span>
+
+                                        {% endif %}
+
+
+                                        <!-- REJECTED -->
+
+                                        {% if submission.status == "REJECTED" %}
+
+                                        <a href="{% url 'manager_review_submission' submission.id %}"
+                                            class="btn btn-sm btn-info">
+
+                                            <i class="bi bi-arrow-repeat"></i>
+                                            Review / Resubmit
+
+                                        </a>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </td>
+
+
+
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                {% else %}
+
+                <div class="alert alert-info">
+
+                    No BRSR submissions available.
+
+                </div>
+
+                {% endif %}
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- FOOTER -->
+
+        <div class="text-center mt-4 text-muted">
+
+            BRSR / ESG Portal — Manager / Approver
+
+        </div>
+
+
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+
+</body>
+
+</html>

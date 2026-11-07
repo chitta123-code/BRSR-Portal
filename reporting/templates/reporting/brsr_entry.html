@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BRSR Data Entry</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+</head>
+
+<body class="bg-light">
+<div class="container py-5">
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white">
+            <h3 class="mb-0">ESG / BRSR Data Entry</h3>
+        </div>
+
+        <div class="card-body">
+
+            <!-- SELECTION FORM -->
+            <form method="GET">
+                <div class="row">
+
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Company</label>
+                        <select name="company" class="form-select" required
+                                onchange="this.form.submit()">
+                            <option value="">Select Company</option>
+                            {% for company in companies %}
+                                <option value="{{ company.id }}" {% if selected_company and selected_company.id == company.id %}selected{% endif %}>
+                                    {{ company.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Business Unit</label>
+                        <select name="business_unit" class="form-select"
+                                {% if not selected_company %}disabled{% endif %}
+                                required onchange="this.form.submit()">
+                            <option value="">Select Business Unit</option>
+                            {% for business_unit in business_units %}
+                                <option value="{{ business_unit.id }}" {% if selected_business_unit and selected_business_unit.id == business_unit.id %}selected{% endif %}>
+                                    {{ business_unit.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Project</label>
+                        <select name="project" class="form-select"
+                                {% if not selected_business_unit %}disabled{% endif %}
+                                onchange="this.form.submit()">
+                            <option value="">Select Project</option>
+                            {% for project in projects %}
+                                <option value="{{ project.id }}" {% if selected_project and selected_project.id == project.id %}selected{% endif %}>
+                                    {{ project.project_code }} - {{ project.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">Financial Year</label>
+                        <select name="period" class="form-select" required>
+                            <option value="">Select Financial Year</option>
+                            {% for period in periods %}
+                                <option value="{{ period.id }}" {% if selected_period and selected_period.id == period.id %}selected{% endif %}>
+                                    {{ period.financial_year }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-9 mb-3">
+                        <label class="form-label">BRSR Principle</label>
+                        <select name="principle" class="form-select" required>
+                            <option value="">Select Principle</option>
+                            {% for principle in principles %}
+                                <option value="{{ principle.id }}" {% if selected_principle and selected_principle.id == principle.id %}selected{% endif %}>
+                                    P{{ principle.number }} - {{ principle.name|truncatechars:100 }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Load Indicators</button>
+            </form>
+
+            <!-- SELECTION SUMMARY -->
+            {% if selected_company %}
+                <div class="alert alert-light border mt-4">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <strong>Company:</strong><br>
+                            {{ selected_company.name }}
+                        </div>
+
+                        <div class="col-md-3">
+                            <strong>Business Unit:</strong><br>
+                            {% if selected_business_unit %}
+                                {{ selected_business_unit.name }}
+                            {% else %}
+                                <span class="text-muted">Not selected</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-3">
+                            <strong>Project:</strong><br>
+                            {% if selected_project %}
+                                {{ selected_project.project_code }} - {{ selected_project.name }}
+                            {% else %}
+                                <span class="text-muted">Not selected</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-3">
+                            <strong>Financial Year:</strong><br>
+                            {% if selected_period %}
+                                {{ selected_period.financial_year }}
+                            {% else %}
+                                <span class="text-muted">Not selected</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- SUBMISSION STATUS -->
+            {% if submission %}
+                <div class="alert alert-info mt-4">
+                    <strong>Submission Status:</strong>
+
+                    {% if submission.status == "DRAFT" %}
+                        <span class="badge bg-secondary">DRAFT</span>
+                    {% elif submission.status == "SUBMITTED" %}
+                        <span class="badge bg-primary">SUBMITTED</span>
+                    {% elif submission.status == "UNDER_REVIEW" %}
+                        <span class="badge bg-warning text-dark">UNDER REVIEW</span>
+                    {% elif submission.status == "APPROVED" %}
+                        <span class="badge bg-success">APPROVED</span>
+                    {% elif submission.status == "REJECTED" %}
+                        <span class="badge bg-danger">REJECTED</span>
+                    {% elif submission.status == "RESUBMITTED" %}
+                        <span class="badge bg-info">RESUBMITTED</span>
+                    {% endif %}
+
+                    {% if submission.submitted_at %}
+                        <small class="text-muted ms-3">
+                            Submitted: {{ submission.submitted_at|date:"d M Y, h:i A" }}
+                        </small>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <!-- INDICATORS -->
+            {% if indicators %}
+                <hr class="my-4">
+
+                {% if selected_principle %}
+                    <div class="alert alert-info">
+                        <h5 class="mb-1">Principle {{ selected_principle.number }}</h5>
+                        <p class="mb-0">{{ selected_principle.name }}</p>
+                    </div>
+                {% endif %}
+
+                <!-- SAVE / SUBMIT FORM -->
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <input type="hidden" name="company" value="{{ selected_company.id }}">
+                    <input type="hidden" name="business_unit" value="{{ selected_business_unit.id }}">
+                    <input type="hidden" name="project" value="{{ selected_project.id }}">
+                    <input type="hidden" name="period" value="{{ selected_period.id }}">
+                    <input type="hidden" name="principle" value="{{ selected_principle.id }}">
+
+                    {% for indicator in indicators %}
+                        <div class="card mb-3 shadow-sm">
+                            <div class="card-body">
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">{{ indicator.indicator_code }}</h5>
+
+                                    {% if indicator.indicator_type == "ESSENTIAL" %}
+                                        <span class="badge bg-danger">Essential</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Leadership</span>
+                                    {% endif %}
+                                </div>
+
+                                <p class="mt-3 mb-2">{{ indicator.question }}</p>
+
+                                {% if indicator.unit %}
+                                    <small class="text-muted">
+                                        Unit: <strong>{{ indicator.unit }}</strong>
+                                    </small>
+                                {% endif %}
+
+                                <label class="form-label mt-3">Response</label>
+                                <textarea name="response_{{ indicator.id }}"
+                                          class="form-control"
+                                          rows="5"
+                                          placeholder="Enter your BRSR response here...">{{ indicator.saved_response|default_if_none:"" }}</textarea>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="alert alert-warning">
+                            <strong>No indicators found.</strong>
+                            Please select a valid BRSR Principle.
+                        </div>
+                    {% endfor %}
+
+                    <div class="d-flex gap-2 mt-4 mb-4">
+                        <button type="submit" name="action" value="save"
+                                class="btn btn-primary">
+                            Save BRSR Data
+                        </button>
+
+                        <button type="submit" name="action" value="submit"
+                                class="btn btn-success">
+                            Submit for Review
+                        </button>
+                    </div>
+                </form>
+            {% elif selected_principle %}
+                <div class="alert alert-warning mt-4">
+                    No indicators are available for the selected principle.
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

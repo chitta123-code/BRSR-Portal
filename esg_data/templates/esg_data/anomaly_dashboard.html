@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>ESG Anomaly Dashboard</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+        rel="stylesheet">
+
+</head>
+
+
+<body class="bg-light">
+
+
+<div class="container-fluid p-4">
+
+
+    <!-- ================================================= -->
+    <!-- HEADER -->
+    <!-- ================================================= -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2 class="fw-bold">
+
+                <i class="bi bi-shield-exclamation"></i>
+
+                ESG Anomaly Detection
+
+            </h2>
+
+            <p class="text-muted mb-0">
+
+                Review unusual ESG values detected by the system.
+
+            </p>
+
+        </div>
+
+
+        <div class="d-flex gap-2">
+
+
+            <!-- Run Anomaly Scan -->
+
+            <form
+                method="POST"
+                action="{% url 'run_anomaly_scan' %}">
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="btn btn-warning">
+
+                    <i class="bi bi-search"></i>
+
+                    Run Anomaly Scan
+
+                </button>
+
+            </form>
+
+
+            <!-- ESG Dashboard -->
+
+            <a
+                href="{% url 'esg_dashboard' %}"
+                class="btn btn-primary">
+
+                <i class="bi bi-bar-chart"></i>
+
+                ESG Dashboard
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ================================================= -->
+    <!-- KPI CARDS -->
+    <!-- ================================================= -->
+
+    <div class="row g-3 mb-4">
+
+
+        <!-- Total -->
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+
+                        Total Open Anomalies
+
+                    </h6>
+
+                    <h2 class="fw-bold">
+
+                        {{ total_anomalies }}
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- Critical -->
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+
+                        Critical
+
+                    </h6>
+
+                    <h2 class="fw-bold text-danger">
+
+                        {{ critical_count }}
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- High -->
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+
+                        High
+
+                    </h6>
+
+                    <h2 class="fw-bold text-warning">
+
+                        {{ high_count }}
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- Medium -->
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+
+                        Medium
+
+                    </h6>
+
+                    <h2 class="fw-bold text-info">
+
+                        {{ medium_count }}
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ================================================= -->
+    <!-- ANOMALY TABLE -->
+    <!-- ================================================= -->
+
+    <div class="card shadow-sm border-0">
+
+
+        <div class="card-header bg-white">
+
+            <h5 class="mb-0">
+
+                <i class="bi bi-exclamation-triangle"></i>
+
+                Detected Anomalies
+
+            </h5>
+
+        </div>
+
+
+
+        <div class="card-body p-0">
+
+
+            {% if anomalies %}
+
+            <div class="table-responsive">
+
+
+                <table class="table table-hover mb-0">
+
+
+                    <thead class="table-light">
+
+                        <tr>
+
+                            <th>Metric</th>
+
+                            <th>Business Unit</th>
+
+                            <th>Financial Year</th>
+
+                            <th>Actual Value</th>
+
+                            <th>Expected Value</th>
+
+                            <th>Difference</th>
+
+                            <th>Score</th>
+
+                            <th>Severity</th>
+
+                            <th>Status</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                    </thead>
+
+
+
+                    <tbody>
+
+
+                        {% for anomaly in anomalies %}
+
+
+                        <tr>
+
+
+                            <!-- ================================= -->
+                            <!-- Metric -->
+                            <!-- ================================= -->
+
+                            <td>
+
+                                <strong>
+
+                                    {{ anomaly.esg_data.metric.name }}
+
+                                </strong>
+
+                            </td>
+
+
+
+                            <!-- ================================= -->
+                            <!-- Business Unit -->
+                            <!-- ================================= -->
+
+                            <td>
+
+                                {{ anomaly.esg_data.business_unit.name }}
+
+                            </td>
+
+
+
+                            <!-- ================================= -->
+                            <!-- Financial Year -->
+                            <!-- ================================= -->
+
+                            <td>
+
+                                {{ anomaly.esg_data.financial_year }}
+
+                            </td>
+
+
+
+                            <!-- ================================= -->
+                            <!-- Actual Value -->
+                            <!-- ================================= -->
+
+                            <td>
+
+                                {{ anomaly.esg_data.value }}
+
+                            </td>
+
+
+
+                            <!-- ================================= -->
+                            <!-- Expected Value -->
+                            <!-- ================================= -->
+
+                            <td>
+
+                                {{ anomaly.expected_value }}
+
+                            </td>
+
+
+
+                            <!-- ================================= -->
+                            <!-- Difference -->
+                            <!-- ================================= -->
+
+                            <td>
+
+                                {{ anomaly.difference_percentage }}%
+
+                            </td>
+
+
+
+                            <!-- ================================= -->
+                            <!-- Score -->
+                            <!-- ================================= -->
+
+                            <td>
+
+                                <strong>
+
+                                    {{ anomaly.score }}
+
+                                </strong>
+
+                            </td>
+
+
+
+                            <!-- ================================= -->
+                            <!-- Severity -->
+                            <!-- ================================= -->
+
+                            <td>
+
+
+                                {% if anomaly.severity == "critical" %}
+
+                                <span class="badge bg-danger">
+
+                                    Critical
+
+                                </span>
+
+
+                                {% elif anomaly.severity == "high" %}
+
+                                <span class="badge bg-warning text-dark">
+
+                                    High
+
+                                </span>
+
+
+                                {% elif anomaly.severity == "medium" %}
+
+                                <span class="badge bg-info text-dark">
+
+                                    Medium
+
+                                </span>
+
+
+                                {% else %}
+
+                                <span class="badge bg-secondary">
+
+                                    Low
+
+                                </span>
+
+                                {% endif %}
+
+
+                            </td>
+
+
+
+                            <!-- ================================= -->
+                            <!-- Status -->
+                            <!-- ================================= -->
+
+                            <td>
+
+                                <span class="badge bg-danger">
+
+                                    Open
+
+                                </span>
+
+                            </td>
+
+
+
+                            <!-- ================================= -->
+                            <!-- ACTION -->
+                            <!-- ================================= -->
+
+                            <td>
+
+                                <div class="d-flex gap-1">
+
+
+                                    <!-- Review -->
+
+                                    <form
+                                        method="POST"
+                                        action="{% url 'review_anomaly' anomaly.id %}">
+
+                                        {% csrf_token %}
+
+                                        <input
+                                            type="hidden"
+                                            name="action"
+                                            value="review">
+
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-sm btn-success">
+
+                                            <i class="bi bi-check-circle"></i>
+
+                                            Review
+
+                                        </button>
+
+                                    </form>
+
+
+
+                                    <!-- Ignore -->
+
+                                    <form
+                                        method="POST"
+                                        action="{% url 'review_anomaly' anomaly.id %}">
+
+                                        {% csrf_token %}
+
+                                        <input
+                                            type="hidden"
+                                            name="action"
+                                            value="ignore">
+
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-sm btn-secondary">
+
+                                            <i class="bi bi-x-circle"></i>
+
+                                            Ignore
+
+                                        </button>
+
+                                    </form>
+
+
+                                </div>
+
+                            </td>
+
+
+                        </tr>
+
+
+                        {% endfor %}
+
+
+                    </tbody>
+
+
+                </table>
+
+
+            </div>
+
+
+            {% else %}
+
+
+            <!-- ================================= -->
+            <!-- NO ANOMALIES -->
+            <!-- ================================= -->
+
+            <div class="text-center p-5">
+
+
+                <i
+                    class="bi bi-check-circle-fill text-success"
+                    style="font-size: 50px;">
+
+                </i>
+
+
+                <h4 class="mt-3">
+
+                    No Open Anomalies
+
+                </h4>
+
+
+                <p class="text-muted">
+
+                    No unusual approved ESG values have been detected.
+
+                </p>
+
+
+            </div>
+
+
+            {% endif %}
+
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- BOOTSTRAP JS -->
+<!-- ================================================= -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+
+</body>
+
+</html>

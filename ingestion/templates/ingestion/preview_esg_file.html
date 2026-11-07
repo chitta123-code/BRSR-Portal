@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% load ingestion_filters %}
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title>ESG Import Preview</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <style>
+
+        body {
+            background: #f5f7fa;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+        }
+
+        .metric-card {
+            transition: transform 0.2s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .confidence-high {
+            color: #198754;
+            font-weight: bold;
+        }
+
+        .confidence-medium {
+            color: #fd7e14;
+            font-weight: bold;
+        }
+
+        .confidence-low {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .mapping-table th {
+            white-space: nowrap;
+        }
+
+        .mapping-table td {
+            vertical-align: middle;
+        }
+
+        .section-title {
+            font-weight: 600;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container-fluid py-4">
+
+
+    <!-- ===================================================== -->
+    <!-- HEADER -->
+    <!-- ===================================================== -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <div>
+
+                    <h2 class="mb-1">
+                        ESG Data Import Preview
+                    </h2>
+
+                    <p class="text-muted mb-0">
+                        Review extracted data, validation results
+                        and ESG metric mapping before importing
+                        into the ESG/BRSR database.
+                    </p>
+
+                </div>
+
+
+                <div>
+
+                    {% if uploaded_file.status == "IMPORTED" %}
+
+                        <span class="badge bg-success fs-6">
+                            ✓ Imported
+                        </span>
+
+                    {% elif uploaded_file.status == "PROCESSED" %}
+
+                        <span class="badge bg-success fs-6">
+                            ✓ Processed
+                        </span>
+
+                    {% elif uploaded_file.status == "VALIDATION_ERROR" %}
+
+                        <span class="badge bg-danger fs-6">
+                            ⚠ Validation Error
+                        </span>
+
+                    {% elif uploaded_file.status == "FAILED" %}
+
+                        <span class="badge bg-danger fs-6">
+                            ✕ Failed
+                        </span>
+
+                    {% else %}
+
+                        <span class="badge bg-secondary fs-6">
+                            {{ uploaded_file.status }}
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ===================================================== -->
+    <!-- DJANGO MESSAGES -->
+    <!-- ===================================================== -->
+
+    {% if messages %}
+
+        {% for message in messages %}
+
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show"
+                 role="alert">
+
+                {{ message }}
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+                </button>
+
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+
+
+
+    <!-- ===================================================== -->
+    <!-- FILE INFORMATION -->
+    <!-- ===================================================== -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-dark text-white">
+
+            <h5 class="mb-0">
+                📁 File Information
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="row g-3">
+
+
+                <div class="col-md-4">
+
+                    <div class="border rounded p-3 h-100">
+
+                        <small class="text-muted">
+                            File
+                        </small>
+
+                        <div class="fw-bold">
+                            {{ uploaded_file.original_filename }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-2">
+
+                    <div class="border rounded p-3 h-100">
+
+                        <small class="text-muted">
+                            Type
+                        </small>
+
+                        <div class="fw-bold">
+                            {{ uploaded_file.file_type }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-2">
+
+                    <div class="border rounded p-3 h-100">
+
+                        <small class="text-muted">
+                            Records
+                        </small>
+
+                        <div class="fw-bold">
+                            {{ uploaded_file.extracted_rows }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-2">
+
+                    <div class="border rounded p-3 h-100">
+
+                        <small class="text-muted">
+                            Validation Errors
+                        </small>
+
+                        <div class="fw-bold text-danger">
+                            {{ uploaded_file.validation_errors }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-2">
+
+                    <div class="border rounded p-3 h-100">
+
+                        <small class="text-muted">
+                            Uploaded By
+                        </small>
+
+                        <div class="fw-bold">
+                            {{ uploaded_file.uploaded_by.username }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ===================================================== -->
+    <!-- VALIDATION SUMMARY -->
+    <!-- ===================================================== -->
+
+    <div class="row mb-4 g-3">
+
+
+        <!-- VALID ROWS -->
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm border-start border-success border-4 metric-card">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Valid Rows
+                    </small>
+
+                    <h2 class="text-success mb-0">
+                        {{ mapped_rows|length }}
+                    </h2>
+
+                    <small class="text-muted">
+                        Rows ready for metric mapping
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ERRORS -->
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm border-start border-danger border-4 metric-card">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Validation Errors
+                    </small>
+
+                    <h2 class="text-danger mb-0">
+                        {{ total_errors }}
+                    </h2>
+
+                    <small class="text-muted">
+                        Rows requiring correction
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- WARNINGS -->
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm border-start border-warning border-4 metric-card">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Warnings
+                    </small>
+
+                    <h2 class="text-warning mb-0">
+                        {{ total_warnings }}
+                    </h2>
+
+                    <small class="text-muted">
+                        Values requiring verification
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ===================================================== -->
+    <!-- ESG METRIC MAPPING -->
+    <!-- ===================================================== -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <div>
+
+                    <h5 class="mb-1">
+                        🤖 ESG Metric Mapping
+                    </h5>
+
+                    <small class="text-muted">
+                        Automatically map uploaded ESG metrics
+                        to the application's standard ESG taxonomy.
+                    </small>
+
+                </div>
+
+
+                <span class="badge bg-primary">
+                    {{ mapped_rows|length }} mapped rows
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="card-body">
+
+
+            {% if mapped_rows %}
+
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-hover mapping-table">
+
+                        <thead class="table-dark">
+
+                            <tr>
+
+                                <th>Row</th>
+
+                                <th>Uploaded Metric</th>
+
+                                <th>Standard ESG Metric</th>
+
+                                <th>Value</th>
+
+                                <th>Unit</th>
+
+                                <th>Match Type</th>
+
+                                <th>Confidence</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+
+                            {% for row in mapped_rows %}
+
+                                <tr>
+
+
+                                    <!-- ROW -->
+
+                                    <td>
+                                        {{ row.row_number }}
+                                    </td>
+
+
+                                    <!-- ORIGINAL METRIC -->
+
+                                    <td>
+
+                                        <strong>
+                                            {{ row.metric }}
+                                        </strong>
+
+                                    </td>
+
+
+                                    <!-- STANDARD METRIC -->
+
+                                    <td>
+
+                                        {% if row.standard_metric %}
+
+                                            <span class="badge bg-success">
+                                                {{ row.standard_metric }}
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="badge bg-danger">
+                                                UNMATCHED
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <!-- VALUE -->
+
+                                    <td>
+                                        {{ row.value }}
+                                    </td>
+
+
+                                    <!-- UNIT -->
+
+                                    <td>
+
+                                        {% if row.unit %}
+
+                                            {{ row.unit }}
+
+                                        {% else %}
+
+                                            <span class="text-muted">
+                                                —
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <!-- MATCH TYPE -->
+
+                                    <td>
+
+                                        {% if row.match_type == "EXACT" %}
+
+                                            <span class="badge bg-success">
+                                                ✓ Exact
+                                            </span>
+
+                                        {% elif row.match_type == "PARTIAL" %}
+
+                                            <span class="badge bg-warning text-dark">
+                                                ⚠ Partial
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="badge bg-danger">
+                                                ✕ Unmatched
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <!-- CONFIDENCE -->
+
+                                    <td>
+
+                                        {% if row.confidence >= 0.9 %}
+
+                                            <span class="confidence-high">
+                                                {{ row.confidence|floatformat:2 }}
+                                            </span>
+
+                                        {% elif row.confidence > 0 %}
+
+                                            <span class="confidence-medium">
+                                                {{ row.confidence|floatformat:2 }}
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="confidence-low">
+                                                0.00
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                </tr>
+
+                            {% endfor %}
+
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+            {% else %}
+
+
+                <div class="alert alert-warning mb-0">
+
+                    <strong>
+                        No valid ESG metric rows were detected.
+                    </strong>
+
+                    <br>
+
+                    Check the uploaded file and make sure it contains
+                    recognizable ESG metric and value columns.
+
+                </div>
+
+
+            {% endif %}
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ===================================================== -->
+    <!-- SHEET DATA -->
+    <!-- ===================================================== -->
+
+    {% for sheet in preview_sheets %}
+
+
+        <div class="card shadow-sm mb-4">
+
+
+            <!-- SHEET HEADER -->
+
+            <div class="card-header">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <strong>
+                        📊 {{ sheet.name }}
+                    </strong>
+
+                    <span class="badge bg-primary">
+                        {{ sheet.total_rows }} rows
+                    </span>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="card-body">
+
+
+                <!-- ================================================= -->
+                <!-- DETECTED COLUMNS -->
+                <!-- ================================================= -->
+
+                <h5 class="section-title mb-3">
+                    Automatically Detected Columns
+                </h5>
+
+
+                <div class="row mb-4">
+
+
+                    {% for key, value in sheet.detected_columns.items %}
+
+
+                        <div class="col-md-3 mb-2">
+
+                            <div class="border rounded p-3 h-100">
+
+                                <strong>
+                                    {{ key|title }}
+                                </strong>
+
+                                <br>
+
+                                <span class="text-success">
+                                    ✓ {{ value }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                    {% empty %}
+
+
+                        <div class="col-12">
+
+                            <div class="alert alert-warning">
+
+                                No standard ESG columns were
+                                automatically detected.
+
+                            </div>
+
+                        </div>
+
+
+                    {% endfor %}
+
+
+                </div>
+
+
+
+                <!-- ================================================= -->
+                <!-- VALIDATION ERRORS -->
+                <!-- ================================================= -->
+
+                {% if sheet.errors %}
+
+
+                    <div class="alert alert-danger">
+
+                        <h6 class="fw-bold">
+                            ❌ Validation Errors
+                        </h6>
+
+
+                        <ul class="mb-0">
+
+                            {% for error in sheet.errors %}
+
+                                <li>
+                                    {{ error }}
+                                </li>
+
+                            {% endfor %}
+
+                        </ul>
+
+                    </div>
+
+
+                {% endif %}
+
+
+
+                <!-- ================================================= -->
+                <!-- WARNINGS -->
+                <!-- ================================================= -->
+
+                {% if sheet.warnings %}
+
+
+                    <div class="alert alert-warning">
+
+                        <h6 class="fw-bold">
+                            ⚠ Warnings
+                        </h6>
+
+
+                        <ul class="mb-0">
+
+                            {% for warning in sheet.warnings %}
+
+                                <li>
+                                    {{ warning }}
+                                </li>
+
+                            {% endfor %}
+
+                        </ul>
+
+                    </div>
+
+
+                {% endif %}
+
+
+
+                <!-- ================================================= -->
+                <!-- DATA PREVIEW -->
+                <!-- ================================================= -->
+
+                <h5 class="section-title mb-3">
+                    Data Preview
+                </h5>
+
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-hover table-sm">
+
+
+                        <thead class="table-dark">
+
+                            <tr>
+
+                                {% for column in sheet.columns %}
+
+                                    <th>
+                                        {{ column }}
+                                    </th>
+
+                                {% endfor %}
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+
+                            {% for row in sheet.rows %}
+
+                                <tr>
+
+                                    {% for column in sheet.columns %}
+
+                                        <td>
+                                            {{ row|get_item:column }}
+                                        </td>
+
+                                    {% endfor %}
+
+                                </tr>
+
+
+                            {% empty %}
+
+
+                                <tr>
+
+                                    <td
+                                        colspan="{{ sheet.columns|length }}"
+                                        class="text-center text-muted">
+
+                                        No data found.
+
+                                    </td>
+
+                                </tr>
+
+
+                            {% endfor %}
+
+
+                        </tbody>
+
+
+                    </table>
+
+                </div>
+
+
+
+                <div class="alert alert-info mt-3 mb-0">
+
+                    Showing the first 20 rows for preview.
+
+                    Total records:
+
+                    <strong>
+                        {{ sheet.total_rows }}
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+    {% empty %}
+
+
+        <div class="alert alert-warning">
+
+            No sheets or data were found in this file.
+
+        </div>
+
+
+    {% endfor %}
+
+
+
+    <!-- ===================================================== -->
+    <!-- WORKFLOW STATUS -->
+    <!-- ===================================================== -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header">
+
+            <h5 class="mb-0">
+                🔄 ESG Import Workflow
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+
+            <div class="row text-center g-3">
+
+
+                <!-- UPLOAD -->
+
+                <div class="col-md-3">
+
+                    <div class="border rounded p-3">
+
+                        <div class="fs-3">
+                            📁
+                        </div>
+
+                        <strong>
+                            1. Upload
+                        </strong>
+
+                        <div class="text-success">
+                            ✓ Completed
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- VALIDATE -->
+
+                <div class="col-md-3">
+
+                    <div class="border rounded p-3">
+
+                        <div class="fs-3">
+                            🔍
+                        </div>
+
+                        <strong>
+                            2. Validate
+                        </strong>
+
+
+                        {% if total_errors == 0 %}
+
+                            <div class="text-success">
+                                ✓ Passed
+                            </div>
+
+                        {% else %}
+
+                            <div class="text-danger">
+                                ⚠ {{ total_errors }} errors
+                            </div>
+
+                        {% endif %}
+
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- MAPPING -->
+
+                <div class="col-md-3">
+
+                    <div class="border rounded p-3">
+
+                        <div class="fs-3">
+                            🤖
+                        </div>
+
+                        <strong>
+                            3. Map Metrics
+                        </strong>
+
+
+                        {% if mapped_rows %}
+
+                            <div class="text-success">
+                                ✓ Completed
+                            </div>
+
+                        {% else %}
+
+                            <div class="text-warning">
+                                Pending
+                            </div>
+
+                        {% endif %}
+
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- IMPORT -->
+
+                <div class="col-md-3">
+
+                    <div class="border rounded p-3">
+
+                        <div class="fs-3">
+                            💾
+                        </div>
+
+                        <strong>
+                            4. Import
+                        </strong>
+
+
+                        {% if uploaded_file.status == "IMPORTED" %}
+
+                            <div class="text-success">
+                                ✓ Imported
+                            </div>
+
+                        {% elif total_errors == 0 and mapped_rows %}
+
+                            <div class="text-warning">
+                                Ready to Import
+                            </div>
+
+                        {% else %}
+
+                            <div class="text-muted">
+                                Blocked
+                            </div>
+
+                        {% endif %}
+
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ===================================================== -->
+    <!-- ACTIONS -->
+    <!-- ===================================================== -->
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+
+            <div class="d-flex gap-2 flex-wrap">
+
+
+                <!-- UPLOAD ANOTHER FILE -->
+
+                <a
+                    href="{% url 'upload_esg_file' %}"
+                    class="btn btn-secondary">
+
+                    ← Upload Another File
+
+                </a>
+
+
+
+                <!-- VALIDATION STATUS -->
+
+                {% if total_errors == 0 and mapped_rows %}
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        disabled>
+
+                        ✓ Data Validated
+
+                    </button>
+
+                {% else %}
+
+                    <button
+                        type="button"
+                        class="btn btn-danger"
+                        disabled>
+
+                        ⚠ Fix Validation Errors
+
+                    </button>
+
+                {% endif %}
+
+
+
+                <!-- ================================================= -->
+                <!-- IMPORT BUTTON -->
+                <!-- ================================================= -->
+
+                {% if uploaded_file.status == "IMPORTED" %}
+
+
+                    <button
+                        type="button"
+                        class="btn btn-success"
+                        disabled>
+
+                        ✓ Already Imported
+
+                    </button>
+
+
+                {% elif total_errors == 0 and mapped_rows %}
+
+
+                    <form
+                        method="post"
+                        action="{% url 'import_esg_file' uploaded_file.id %}"
+                        onsubmit="return confirmImport();"
+                        class="d-inline">
+
+                        {% csrf_token %}
+
+
+                        <button
+                            type="submit"
+                            class="btn btn-success">
+
+                            ✓ Import to ESG Database
+
+                        </button>
+
+
+                    </form>
+
+
+                {% else %}
+
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        disabled>
+
+                        Import Disabled
+
+                    </button>
+
+
+                {% endif %}
+
+
+            </div>
+
+
+
+            <!-- ================================================= -->
+            <!-- ACTION MESSAGE -->
+            <!-- ================================================= -->
+
+            <div class="mt-3">
+
+
+                {% if uploaded_file.status == "IMPORTED" %}
+
+
+                    <div class="alert alert-success mb-0">
+
+                        <strong>
+                            ✓ Import completed successfully.
+                        </strong>
+
+                        <br>
+
+                        The validated ESG records have been stored
+                        in the ESG staging database.
+
+                    </div>
+
+
+                {% elif total_errors > 0 %}
+
+
+                    <div class="alert alert-danger mb-0">
+
+                        <strong>
+                            Import is blocked.
+                        </strong>
+
+                        <br>
+
+                        Please correct the validation errors
+                        before importing the data.
+
+                    </div>
+
+
+                {% elif mapped_rows %}
+
+
+                    <div class="alert alert-success mb-0">
+
+                        <strong>
+                            Data passed the current validation stage.
+                        </strong>
+
+                        <br>
+
+                        Metric mapping has been completed.
+                        The data is ready to be imported.
+
+                    </div>
+
+
+                {% else %}
+
+
+                    <div class="alert alert-warning mb-0">
+
+                        No importable ESG records were detected.
+
+                    </div>
+
+
+                {% endif %}
+
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- ===================================================== -->
+<!-- BOOTSTRAP JAVASCRIPT -->
+<!-- ===================================================== -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+
+
+<!-- ===================================================== -->
+<!-- IMPORT CONFIRMATION -->
+<!-- ===================================================== -->
+
+<script>
+
+function confirmImport() {
+
+    return confirm(
+        "Are you sure you want to import these ESG records into the database?"
+    );
+
+}
+
+</script>
+
+
+</body>
+
+</html>

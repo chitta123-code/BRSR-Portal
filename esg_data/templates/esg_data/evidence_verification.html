@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>ESG Evidence Verification</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+</head>
+
+
+<body class="bg-light">
+
+
+<div class="container py-4">
+
+
+    <!-- ========================================================= -->
+    <!-- HEADER -->
+    <!-- ========================================================= -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-dark text-white">
+
+            <h4 class="mb-0">
+
+                <i class="bi bi-file-earmark-check"></i>
+
+                ESG Evidence Verification
+
+            </h4>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <p class="text-muted mb-0">
+
+                Review supporting documents submitted for ESG data.
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ========================================================= -->
+    <!-- SUMMARY CARDS -->
+    <!-- ========================================================= -->
+
+    <div class="row g-3 mb-4">
+
+
+        <!-- TOTAL -->
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+
+                        Total Evidence
+
+                    </h6>
+
+                    <h3 class="mb-0">
+
+                        {{ total_count }}
+
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- PENDING -->
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+
+                        Pending
+
+                    </h6>
+
+                    <h3 class="text-warning mb-0">
+
+                        {{ pending_count }}
+
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- VERIFIED -->
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+
+                        Verified
+
+                    </h6>
+
+                    <h3 class="text-success mb-0">
+
+                        {{ verified_count }}
+
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- REJECTED -->
+
+        <div class="col-md-3">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+
+                        Rejected
+
+                    </h6>
+
+                    <h3 class="text-danger mb-0">
+
+                        {{ rejected_count }}
+
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- ========================================================= -->
+    <!-- EVIDENCE TABLE -->
+    <!-- ========================================================= -->
+
+    <div class="card shadow-sm">
+
+
+        <div class="card-header">
+
+            <h5 class="mb-0">
+
+                Submitted Evidence
+
+            </h5>
+
+        </div>
+
+
+
+        <div class="card-body">
+
+
+            {% if evidence %}
+
+
+            <div class="table-responsive">
+
+
+                <table class="table table-bordered table-hover align-middle">
+
+
+                    <!-- TABLE HEADER -->
+
+                    <thead class="table-dark">
+
+                        <tr>
+
+                            <th>
+                                ID
+                            </th>
+
+                            <th>
+                                ESG Metric
+                            </th>
+
+                            <th>
+                                Business Unit
+                            </th>
+
+                            <th>
+                                Financial Year
+                            </th>
+
+                            <th>
+                                Evidence Type
+                            </th>
+
+                            <th>
+                                Document
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+
+                    <!-- TABLE BODY -->
+
+                    <tbody>
+
+
+                    {% for item in evidence %}
+
+
+                    <tr>
+
+
+                        <!-- ================================================= -->
+                        <!-- ID -->
+                        <!-- ================================================= -->
+
+                        <td>
+
+                            {{ item.id }}
+
+                        </td>
+
+
+
+                        <!-- ================================================= -->
+                        <!-- ESG METRIC -->
+                        <!-- ================================================= -->
+
+                        <td>
+
+                            {% if item.esg_data.metric %}
+
+                                {{ item.esg_data.metric.name }}
+
+                            {% else %}
+
+                                <span class="text-muted">
+                                    -
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+
+                        <!-- ================================================= -->
+                        <!-- BUSINESS UNIT -->
+                        <!-- ================================================= -->
+
+                        <td>
+
+                            {% if item.esg_data.business_unit %}
+
+                                {{ item.esg_data.business_unit.name }}
+
+                            {% else %}
+
+                                <span class="text-muted">
+                                    -
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+
+                        <!-- ================================================= -->
+                        <!-- FINANCIAL YEAR -->
+                        <!-- ================================================= -->
+
+                        <td>
+
+                            {{ item.esg_data.financial_year }}
+
+                        </td>
+
+
+
+                        <!-- ================================================= -->
+                        <!-- EVIDENCE TYPE -->
+                        <!-- ================================================= -->
+
+                        <td>
+
+                            {{ item.get_evidence_type_display }}
+
+                        </td>
+
+
+
+                        <!-- ================================================= -->
+                        <!-- DOCUMENT -->
+                        <!-- ================================================= -->
+
+                        <td>
+
+
+                            {% if item.file %}
+
+
+                                <!-- VIEW DOCUMENT -->
+
+                                <a
+                                    href="{{ item.file.url }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="btn btn-sm btn-outline-primary">
+
+                                    <i class="bi bi-file-earmark-text"></i>
+
+                                    View Document
+
+                                </a>
+
+
+
+                                <!-- FILE NAME -->
+
+                                <div class="small text-muted mt-2">
+
+                                    {% if item.original_filename %}
+
+                                        {{ item.original_filename }}
+
+                                    {% else %}
+
+                                        {{ item.file.name }}
+
+                                    {% endif %}
+
+                                </div>
+
+
+                            {% else %}
+
+
+                                <span class="text-muted">
+
+                                    <i class="bi bi-file-earmark-x"></i>
+
+                                    No document
+
+                                </span>
+
+
+                            {% endif %}
+
+
+                        </td>
+
+
+
+                        <!-- ================================================= -->
+                        <!-- STATUS -->
+                        <!-- ================================================= -->
+
+                        <td>
+
+
+                            {% if item.verification_status == "pending" %}
+
+
+                                <span class="badge bg-warning text-dark">
+
+                                    PENDING
+
+                                </span>
+
+
+                            {% elif item.verification_status == "verified" %}
+
+
+                                <span class="badge bg-success">
+
+                                    VERIFIED
+
+                                </span>
+
+
+                                {% if item.verified_by %}
+
+                                    <div class="small text-muted mt-1">
+
+                                        By {{ item.verified_by }}
+
+                                    </div>
+
+                                {% endif %}
+
+
+                                {% if item.verified_at %}
+
+                                    <div class="small text-muted">
+
+                                        {{ item.verified_at|date:"d M Y, h:i A" }}
+
+                                    </div>
+
+                                {% endif %}
+
+
+                            {% elif item.verification_status == "rejected" %}
+
+
+                                <span class="badge bg-danger">
+
+                                    REJECTED
+
+                                </span>
+
+
+                                {% if item.rejection_reason %}
+
+                                    <div class="small text-danger mt-2">
+
+                                        <strong>
+                                            Reason:
+                                        </strong>
+
+                                        {{ item.rejection_reason }}
+
+                                    </div>
+
+                                {% endif %}
+
+
+                            {% else %}
+
+
+                                <span class="badge bg-secondary">
+
+                                    UNKNOWN
+
+                                </span>
+
+
+                            {% endif %}
+
+
+                        </td>
+
+
+
+                        <!-- ================================================= -->
+                        <!-- ACTION -->
+                        <!-- ================================================= -->
+
+                        <td>
+
+
+                            {% if item.verification_status == "pending" %}
+
+
+                                <div class="d-flex gap-1 flex-wrap">
+
+
+                                    <!-- VERIFY -->
+
+                                    <form
+                                        method="post"
+                                        action="{% url 'verify_evidence' item.id %}">
+
+                                        {% csrf_token %}
+
+                                        <button
+                                            type="submit"
+                                            name="action"
+                                            value="verify"
+                                            class="btn btn-sm btn-success">
+
+                                            <i class="bi bi-check-circle"></i>
+
+                                            Verify
+
+                                        </button>
+
+                                    </form>
+
+
+
+                                    <!-- REJECT -->
+
+                                    <form
+                                        method="post"
+                                        action="{% url 'verify_evidence' item.id %}"
+                                        onsubmit="return rejectEvidence(this);">
+
+                                        {% csrf_token %}
+
+
+                                        <input
+                                            type="hidden"
+                                            name="action"
+                                            value="reject">
+
+
+                                        <input
+                                            type="hidden"
+                                            name="rejection_reason"
+                                            value="">
+
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-sm btn-danger">
+
+                                            <i class="bi bi-x-circle"></i>
+
+                                            Reject
+
+                                        </button>
+
+                                    </form>
+
+
+                                </div>
+
+
+                            {% elif item.verification_status == "verified" %}
+
+
+                                <span class="text-success">
+
+                                    <i class="bi bi-check-circle-fill"></i>
+
+                                    Verified
+
+                                </span>
+
+
+                            {% elif item.verification_status == "rejected" %}
+
+
+                                <span class="text-danger">
+
+                                    <i class="bi bi-x-circle-fill"></i>
+
+                                    Rejected
+
+                                </span>
+
+
+                            {% endif %}
+
+
+                        </td>
+
+
+                    </tr>
+
+
+                    {% empty %}
+
+
+                    <!-- ================================================= -->
+                    <!-- NO EVIDENCE -->
+                    <!-- ================================================= -->
+
+                    <tr>
+
+                        <td
+                            colspan="8"
+                            class="text-center text-muted py-4">
+
+                            <i class="bi bi-info-circle"></i>
+
+                            No ESG evidence has been submitted yet.
+
+                        </td>
+
+                    </tr>
+
+
+                    {% endfor %}
+
+
+                    </tbody>
+
+
+                </table>
+
+
+            </div>
+
+
+            {% else %}
+
+
+            <!-- ========================================================= -->
+            <!-- NO EVIDENCE MESSAGE -->
+            <!-- ========================================================= -->
+
+            <div class="alert alert-info mb-0">
+
+                <i class="bi bi-info-circle"></i>
+
+                No ESG evidence has been submitted yet.
+
+            </div>
+
+
+            {% endif %}
+
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- ============================================================= -->
+<!-- REJECTION SCRIPT -->
+<!-- ============================================================= -->
+
+<script>
+
+function rejectEvidence(form) {
+
+    const reason = prompt(
+        "Please enter the reason for rejecting this evidence:"
+    );
+
+
+    // User pressed Cancel
+
+    if (reason === null) {
+
+        return false;
+
+    }
+
+
+    // Empty reason
+
+    if (reason.trim() === "") {
+
+        alert(
+            "Rejection reason is required."
+        );
+
+        return false;
+
+    }
+
+
+    // Store rejection reason
+
+    const input = form.querySelector(
+        'input[name="rejection_reason"]'
+    );
+
+
+    if (!input) {
+
+        alert(
+            "Rejection reason field is missing."
+        );
+
+        return false;
+
+    }
+
+
+    input.value = reason.trim();
+
+
+    return true;
+
+}
+
+</script>
+
+
+</body>
+
+</html>
+
